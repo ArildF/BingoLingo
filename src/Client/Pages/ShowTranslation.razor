@@ -14,13 +14,15 @@ else
     <p>@_translation.original</p>
     <input @bind="_submittedTranslation"/>
     <button @onclick="@Submit" class="btn btn-primary">Submit</button>
-    <p hidden="@_hideResult">@_resultText</p>
+    <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
+    <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
 }
 
 @code {
     private Translation? _translation;
     private string? _submittedTranslation;
-    private bool _hideResult = true;
+    private bool _hideSuccess = true;
+    private bool _hideFailure = true;
     private string _resultText = "";
 
     protected override async Task OnInitializedAsync()
@@ -32,12 +34,11 @@ else
     {
         if (_translation?.translation != _submittedTranslation)
         {
-            _resultText = "You dumb";
+            _hideFailure = false;
         }
         else
         {
-            _resultText = "You good";
+            _hideSuccess = false;
         }
-        _hideResult = false;
     }
 }
