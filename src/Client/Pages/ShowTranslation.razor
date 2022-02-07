@@ -1,4 +1,4 @@
-﻿@page "/showTranslation"
+﻿@page "/"
 @using BingoLingo.Shared
 @inject HttpClient Http
 
@@ -10,12 +10,14 @@
 }
 else
 {
-    <h3>Translate the following:</h3>
-    <p>@_translation.original</p>
-    <input @bind="_submittedTranslation"/>
-    <button @onclick="@Submit" class="btn btn-primary">Submit</button>
-    <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
-    <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
+    <div style="text-align: center">
+        <h3>Translate the following:</h3>
+        <p>@_translation.original</p>
+        <input @bind="_submittedTranslation" autofocus="autofocus"/>
+        <button @onclick="@Submit" type="submit" class="btn btn-primary">Submit</button>
+        <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
+        <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
+    </div>
 }
 
 @code {
@@ -23,7 +25,6 @@ else
     private string? _submittedTranslation;
     private bool _hideSuccess = true;
     private bool _hideFailure = true;
-    private string _resultText = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,6 +33,7 @@ else
 
     private void Submit()
     {
+        _hideFailure = _hideSuccess = true;
         if (_translation?.translation != _submittedTranslation)
         {
             _hideFailure = false;
