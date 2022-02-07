@@ -1,0 +1,43 @@
+﻿@page "/showTranslation"
+@using BingoLingo.Shared
+@inject HttpClient Http
+
+<PageTitle>Translate!</PageTitle>
+
+@if (_translation == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h3>Translate the following:</h3>
+    <p>@_translation.original</p>
+    <input @bind="_submittedTranslation"/>
+    <button @onclick="@Submit" class="btn btn-primary">Submit</button>
+    <p hidden="@_hideResult">@_resultText</p>
+}
+
+@code {
+    private Translation? _translation;
+    private string? _submittedTranslation;
+    private bool _hideResult = true;
+    private string _resultText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _translation = await Http.GetFromJsonAsync<Translation>("/randomTranslation");
+    }
+
+    private void Submit()
+    {
+        if (_translation?.translation != _submittedTranslation)
+        {
+            _resultText = "You dumb";
+        }
+        else
+        {
+            _resultText = "You good";
+        }
+        _hideResult = false;
+    }
+}
