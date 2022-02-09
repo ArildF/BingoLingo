@@ -31,6 +31,7 @@ else
                         <div>&#x274C;</div>
                     }
                 </div>
+                <button class="btn-primary" onclick="@Continue">Continue</button>
             }
         </div>
     </EditForm>
@@ -38,15 +39,36 @@ else
 
 @code {
     private Translation? _translation;
+    private StartedSession? _session;
     private string? _submittedTranslation;
     private bool _questionSubmitted;
     private bool _success;
+    private Queue<Translation>? _translations;
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.GetAsync("/Translations/random");
+        var response = await Http.PutAsync("/Sessions/", null);
         await response.ThrowIfError(_logger);
-        _translation = await response.Content.ReadFromJsonAsync<Translation>();
+        _session = await response.Content.ReadFromJsonAsync<StartedSession>();
+
+        _translations = new Queue<Translation>(_session!.Translations);
+
+        NextTranslation();
+    }
+
+    private void Continue()
+    {
+        NextTranslation();
+    }
+
+    private void NextTranslation()
+    {
+        if (_translations!.Any())
+        {
+	        _questionSubmitted = false;
+	        _submittedTranslation = "";
+            _translation = _translations!.Dequeue();
+        }
     }
 
     private void Submit()
