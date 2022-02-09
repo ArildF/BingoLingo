@@ -11,14 +11,16 @@
 }
 else
 {
-    <div style="text-align: center">
-        <h3>Translate the following:</h3>
-        <p>"@_translation.Original"</p>
-        <input @bind="_submittedTranslation" autofocus="autofocus"/>
-        <button @onclick="@Submit" type="submit" class="btn btn-primary">Submit</button>
-        <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
-        <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
-    </div>
+    <EditForm Model="_translation" OnSubmit="Submit">
+        <div class="form-group text-center">
+            <h3>Translate the following:</h3>
+            <p>"@_translation.Original"</p>
+            <InputText @bind-Value="_submittedTranslation" autofocus="autofocus" class="form-control"/>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
+            <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
+        </div>
+    </EditForm>
 }
 
 @code {
