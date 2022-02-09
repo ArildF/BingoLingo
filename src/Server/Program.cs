@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.ResponseCompression;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    var url = new MongoUrl(config["Mongo:ConnectionString"]);
+    var client = new MongoClient(url);
+    return client.GetDatabase(url.DatabaseName);
+});
 
 var app = builder.Build();
 

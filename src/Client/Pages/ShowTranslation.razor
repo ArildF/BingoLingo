@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using BingoLingo.Shared
 @inject HttpClient Http
+@inject ILogger<ShowTranslation> _logger;
 
 <PageTitle>Translate!</PageTitle>
 
@@ -12,7 +13,7 @@ else
 {
     <div style="text-align: center">
         <h3>Translate the following:</h3>
-        <p>@_translation.original</p>
+        <p>"@_translation.Original"</p>
         <input @bind="_submittedTranslation" autofocus="autofocus"/>
         <button @onclick="@Submit" type="submit" class="btn btn-primary">Submit</button>
         <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
@@ -28,13 +29,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        _translation = await Http.GetFromJsonAsync<Translation>("/randomTranslation");
+        var response = await Http.GetAsync("/Translations/random");
+        await response.ThrowIfError(_logger);
+        _translation = await response.Content.ReadFromJsonAsync<Translation>();
     }
 
     private void Submit()
     {
         _hideFailure = _hideSuccess = true;
-        if (_translation?.translation != _submittedTranslation)
+	    var submitted = _submittedTranslation?.Trim();
+        if (_translation?.Translated != submitted)
         {
             _hideFailure = false;
         }

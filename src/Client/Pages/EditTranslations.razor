@@ -1,0 +1,49 @@
+﻿@page "/EditTranslations"
+@using BingoLingo.Shared
+@inject HttpClient _http
+@inject ILogger<ShowTranslation> _logger;
+
+<PageTitle>Edit translations</PageTitle>
+@if (_translation == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@_translation" OnSubmit="ValidSubmitted">
+        <div>
+            <label for="Original">Original</label>
+            <InputText @bind-Value="_translation.Original" id="Original"/>
+        </div>
+        <div>
+            <label for="Translated">Translated</label>
+            <InputText @bind-Value="_translation.Translated" id="Translated"/>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Save"/>
+    </EditForm>
+}
+
+@code
+{
+    private Translation? _translation;
+
+    protected override Task OnInitializedAsync()
+    {
+        NewTranslation();
+        
+        return Task.CompletedTask;
+    }
+
+    private async Task ValidSubmitted()
+    {
+        var res = await _http.PutAsJsonAsync("/translations", _translation);
+        await res.ThrowIfError(_logger);
+        
+        NewTranslation();
+    }
+
+    private void NewTranslation()
+    {
+        _translation = new Translation("", "", Guid.NewGuid().ToString());
+    }
+}
