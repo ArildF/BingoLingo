@@ -7,7 +7,9 @@
 
 @if (_translation == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else
 {
@@ -17,8 +19,19 @@ else
             <p>"@_translation.Original"</p>
             <InputText @bind-Value="_submittedTranslation" autofocus="autofocus" class="form-control"/>
             <button type="submit" class="btn btn-primary">Submit</button>
-            <p style="font-size:48px" hidden="@_hideSuccess">&#x2705;</p>
-            <p style="font-size:48px" hidden="@_hideFailure">&#x274C;</p>
+            @if (_questionSubmitted)
+            {
+                <div style="font-size:48px">
+                    @if (_success)
+                    {
+                        <div>&#x2705;</div>
+                    }
+                    else
+                    {
+                        <div>&#x274C;</div>
+                    }
+                </div>
+            }
         </div>
     </EditForm>
 }
@@ -26,8 +39,8 @@ else
 @code {
     private Translation? _translation;
     private string? _submittedTranslation;
-    private bool _hideSuccess = true;
-    private bool _hideFailure = true;
+    private bool _questionSubmitted;
+    private bool _success;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,15 +51,8 @@ else
 
     private void Submit()
     {
-        _hideFailure = _hideSuccess = true;
-	    var submitted = _submittedTranslation?.Trim();
-        if (_translation?.Translated != submitted)
-        {
-            _hideFailure = false;
-        }
-        else
-        {
-            _hideSuccess = false;
-        }
+        var submitted = _submittedTranslation?.Trim();
+        _success = _translation?.Translated == submitted;
+        _questionSubmitted = true;
     }
 }
