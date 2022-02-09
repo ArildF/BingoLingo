@@ -2,6 +2,7 @@
 @using BingoLingo.Shared
 @inject HttpClient Http
 @inject ILogger<RunSession> _logger;
+@inject NavigationManager _navigation;
 
 <PageTitle>Translate!</PageTitle>
 
@@ -65,9 +66,13 @@ else
     {
         if (_translations!.Any())
         {
-	        _questionSubmitted = false;
-	        _submittedTranslation = "";
+            _questionSubmitted = false;
+            _submittedTranslation = "";
             _translation = _translations!.Dequeue();
+        }
+        else
+        {
+            _navigation.NavigateTo("/");
         }
     }
 

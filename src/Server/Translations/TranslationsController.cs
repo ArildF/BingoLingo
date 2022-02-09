@@ -29,8 +29,8 @@ public class TranslationsController : Controller
     [HttpPut]
     public async Task<IActionResult> Put(Translation translation)
     {
-	    translation.Original = translation.Original.Trim();
-	    translation.Translated = translation.Translated.Trim();
+        translation.Original = translation.Original.Trim();
+        translation.Translated = translation.Translated.Trim();
 
         var coll = _database.GetCollection<Translation>("Translation");
         await coll.InsertOneAsync(translation);
