@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BingoLingo.Shared;
 
-public static class HttpExtensions
+public static class Extensions
 {
     public static async Task ThrowIfError(this HttpResponseMessage msg) => await ThrowIfError<object>(msg);
     public static async Task ThrowIfError<T>(this HttpResponseMessage msg, ILogger<T>? logger = null)

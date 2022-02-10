@@ -23,14 +23,32 @@ public class SessionsController : Controller
         var session = new Session
         {
             Id = Guid.NewGuid().ToString(),
-            Results = new TranslationResult[]{}
+            Results = new List<TranslationResult>()
         };
-        await _mongoDatabase.GetCollection<Session>("Session").InsertOneAsync(session);
+        await _mongoDatabase.Collection<Session>().InsertOneAsync(session);
 
         var collection = _mongoDatabase.GetCollection<Translation>("Translation");
         var translations = await collection.AsQueryable().Sample(100).ToListAsync();
         return Ok(new StartedSession(session.Id, translations.ToArray()));
+    }
 
+    [HttpPost("{id}")]
+    public async Task<IActionResult> SubmitAnswer(string id, SubmittedAnswerRequest answerRequest)
+    {
+        var session = await _mongoDatabase.Collection<Session>().AsQueryable()
+            .Where(s => s.Id == id).FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return NotFound();
+        }
+
+        var success = answerRequest.Translation.Translated == answerRequest.Answer;
+        session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success));
+
+        await _mongoDatabase.Collection<Session>().ReplaceOneAsync(s => s.Id == id, session);
+
+        return Ok(new SubmittedAnswerResponse(success));
     }
 }
 
@@ -38,7 +56,8 @@ public class Session
 {
     [BsonId]
     public string? Id { get; set; }
-    public TranslationResult[]? Results { get; set; }
+
+    public List<TranslationResult>? Results { get; set; } = new();
 }
 
 public record TranslationResult(Translation Translation, string SubmittedAnswer, bool Success);

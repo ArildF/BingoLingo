@@ -102,7 +102,13 @@ else
     private async Task Submit()
     {
         var submitted = _submittedTranslation?.Trim();
-        _success = _translation?.Translated == submitted;
+	    var request = new SubmittedAnswerRequest(submitted, _translation);
+        var msg = await Http.PostAsync($"/Sessions/{_session?.Id}", JsonContent.Create(request));
+        await msg.ThrowIfError(_logger);
+
+        var response = await msg.Content.ReadFromJsonAsync<SubmittedAnswerResponse>();
+
+        _success = response?.Success ?? false;
         _questionSubmitted = true;
     }
 
