@@ -23,7 +23,7 @@ public class SessionsController : Controller
         var session = new Session
         {
             Id = Guid.NewGuid().ToString(),
-            Results = new List<TranslationResult>()
+            Started = DateTimeOffset.UtcNow,
         };
         await _mongoDatabase.Collection<Session>().InsertOneAsync(session);
 
@@ -44,7 +44,7 @@ public class SessionsController : Controller
         }
 
         var success = answerRequest.Translation.Translated == answerRequest.Answer;
-        session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success));
+        session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success, DateTimeOffset.UtcNow));
 
         await _mongoDatabase.Collection<Session>().ReplaceOneAsync(s => s.Id == id, session);
 
@@ -58,6 +58,10 @@ public class Session
     public string? Id { get; set; }
 
     public List<TranslationResult>? Results { get; set; } = new();
+
+    public DateTimeOffset Started { get; set; }
+
+    public DateTimeOffset? Ended { get; set; }
 }
 
-public record TranslationResult(Translation Translation, string SubmittedAnswer, bool Success);
+public record TranslationResult(Translation Translation, string SubmittedAnswer, bool Success, DateTimeOffset Time);
