@@ -18,9 +18,12 @@ else
         <div class="form-group text-center">
             <h3>Translate the following:</h3>
             <p>"@_translation.Original"</p>
-            <InputText @bind-Value="_submittedTranslation" autofocus="autofocus" class="form-control"/>
-            <button type="submit" class="btn btn-primary">Submit</button>
-            @if (_questionSubmitted)
+            <InputText @bind-Value="_submittedTranslation" autofocus="autofocus" class="form-control" @ref="_inputText"/>
+            @if (!_questionSubmitted)
+            {
+                <button type="submit" class="btn btn-primary">Submit</button>
+            }
+            else
             {
                 <div style="font-size:48px">
                     @if (_success)
@@ -32,7 +35,12 @@ else
                         <div>&#x274C;</div>
                     }
                 </div>
-                <button class="btn-primary" onclick="@Continue">Continue</button>
+                if (!_success)
+                {
+                    <p>Correct answer was: </p>
+                    <p>"@_translation.Translated"</p>
+                }
+                <button class="btn btn-primary" onclick="@Continue" @ref="_continueButton">Continue</button>
             }
         </div>
     </EditForm>
@@ -45,6 +53,9 @@ else
     private bool _questionSubmitted;
     private bool _success;
     private Queue<Translation>? _translations;
+    private ElementReference? _continueButton;
+
+    private InputText? _inputText;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,10 +87,23 @@ else
         }
     }
 
-    private void Submit()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_questionSubmitted && _continueButton != null)
+        {
+            await _continueButton.Value.FocusAsync();
+        }
+        else if (_inputText?.Element != null)
+        {
+            await _inputText.Element.Value.FocusAsync();
+        }
+    }
+
+    private async Task Submit()
     {
         var submitted = _submittedTranslation?.Trim();
         _success = _translation?.Translated == submitted;
         _questionSubmitted = true;
     }
+
 }
