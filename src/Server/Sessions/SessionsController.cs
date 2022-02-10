@@ -37,8 +37,8 @@ public class SessionsController : Controller
 public class Session
 {
     [BsonId]
-    public string Id { get; set; }
-    public TranslationResult[] Results { get; set; }
+    public string? Id { get; set; }
+    public TranslationResult[]? Results { get; set; }
 }
 
 public record TranslationResult(Translation Translation, string SubmittedAnswer, bool Success);
