@@ -46,9 +46,32 @@ public class SessionsController : Controller
         var success = answerRequest.Translation.Translated == answerRequest.Answer;
         session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success, DateTimeOffset.UtcNow));
 
-        await _mongoDatabase.Collection<Session>().ReplaceOneAsync(s => s.Id == id, session);
+        await StoreSession(id, session);
 
         return Ok(new SubmittedAnswerResponse(success));
+    }
+
+    [HttpPost("{id}/completed")]
+    public async Task<IActionResult> SessionCompleted(string id)
+    {
+        var session = await _mongoDatabase.Collection<Session>().AsQueryable()
+            .Where(s => s.Id == id).FirstOrDefaultAsync();
+
+        if (session == null)
+        {
+            return NotFound();
+        }
+        
+        session.Ended = DateTimeOffset.Now;
+
+        await StoreSession(id, session);
+
+        return NoContent();
+    }
+
+    private async Task StoreSession(string id, Session session)
+    {
+        await _mongoDatabase.Collection<Session>().ReplaceOneAsync(s => s.Id == id, session);
     }
 }
 

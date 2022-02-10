@@ -65,15 +65,15 @@ else
 
         _translations = new Queue<Translation>(_session!.Translations);
 
-        NextTranslation();
+        await NextTranslation();
     }
 
-    private void Continue()
+    private async Task Continue()
     {
-        NextTranslation();
+        await NextTranslation();
     }
 
-    private void NextTranslation()
+    private async Task NextTranslation()
     {
         if (_translations!.Any())
         {
@@ -83,6 +83,9 @@ else
         }
         else
         {
+            var msg = await Http.PostAsync($"/Sessions/{_session?.Id}/completed", null);
+            await msg.ThrowIfError();
+            
             _navigation.NavigateTo("/");
         }
     }
@@ -102,7 +105,7 @@ else
     private async Task Submit()
     {
         var submitted = _submittedTranslation?.Trim();
-	    var request = new SubmittedAnswerRequest(submitted, _translation);
+        var request = new SubmittedAnswerRequest(submitted, _translation);
         var msg = await Http.PostAsync($"/Sessions/{_session?.Id}", JsonContent.Create(request));
         await msg.ThrowIfError(_logger);
 
