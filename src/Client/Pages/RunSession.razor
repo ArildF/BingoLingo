@@ -86,7 +86,7 @@ else
             var msg = await Http.PostAsync($"/Sessions/{_session?.Id}/completed", null);
             await msg.ThrowIfError();
             
-            _navigation.NavigateTo("/");
+            _navigation.NavigateTo($"/SessionResults/{_session?.Id}");
         }
     }
 

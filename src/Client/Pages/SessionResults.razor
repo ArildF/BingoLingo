@@ -1,0 +1,32 @@
+@page "/SessionResults/{SessionId}"
+@using BingoLingo.Shared
+@inject HttpClient Http
+<h3>Session results</h3>
+@if (_session == null)
+{
+    <p>Loading</p>
+}
+else
+{
+    @foreach (var result in _session!.Results)
+    {
+        <TranslationResult Result="result"></TranslationResult>
+    }
+
+    <NavLink class="nav-link" href="/">Back to start</NavLink>
+}
+
+@code {
+    [Parameter] public string? SessionId { get; set; }
+
+    private Session? _session;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var msg = await Http.GetAsync($"Sessions/{SessionId}");
+        await msg.ThrowIfError();
+
+        _session = await msg.Content.ReadFromJsonAsync<Session>();
+    }
+
+}

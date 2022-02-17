@@ -1,6 +1,5 @@
 using BingoLingo.Shared;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
@@ -35,8 +34,7 @@ public class SessionsController : Controller
     [HttpPost("{id}")]
     public async Task<IActionResult> SubmitAnswer(string id, SubmittedAnswerRequest answerRequest)
     {
-        var session = await _mongoDatabase.Collection<Session>().AsQueryable()
-            .Where(s => s.Id == id).FirstOrDefaultAsync();
+        var session = await GetSession(id);
 
         if (session == null)
         {
@@ -54,8 +52,7 @@ public class SessionsController : Controller
     [HttpPost("{id}/completed")]
     public async Task<IActionResult> SessionCompleted(string id)
     {
-        var session = await _mongoDatabase.Collection<Session>().AsQueryable()
-            .Where(s => s.Id == id).FirstOrDefaultAsync();
+        var session = await GetSession(id);
 
         if (session == null)
         {
@@ -69,22 +66,27 @@ public class SessionsController : Controller
         return NoContent();
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Session(string id)
+    {
+        var session = await GetSession(id);
+        if (session == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(session);
+    }
+
+    private async Task<Session?> GetSession(string id)
+    {
+        var session = await _mongoDatabase.Collection<Session>().AsQueryable()
+            .Where(s => s.Id == id).FirstOrDefaultAsync();
+        return session;
+    }
+
     private async Task StoreSession(string id, Session session)
     {
         await _mongoDatabase.Collection<Session>().ReplaceOneAsync(s => s.Id == id, session);
     }
 }
-
-public class Session
-{
-    [BsonId]
-    public string? Id { get; set; }
-
-    public List<TranslationResult>? Results { get; set; } = new();
-
-    public DateTimeOffset Started { get; set; }
-
-    public DateTimeOffset? Ended { get; set; }
-}
-
-public record TranslationResult(Translation Translation, string SubmittedAnswer, bool Success, DateTimeOffset Time);

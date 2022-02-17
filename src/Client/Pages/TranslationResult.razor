@@ -1,0 +1,48 @@
+﻿<table>
+    <tr>
+        @if (Result != null)
+        {
+            <td>
+                <div style="font-size: 48px">
+                    @if (Result.Success)
+                    {
+                        <div>&#x2705;</div>
+                    }
+                    else
+                    {
+                        <div>&#x274C;</div>
+                    }
+                </div>
+            </td>
+            <td>
+                <table>
+                    <tr>
+                        <td>
+                            <b>Original</b>
+                        </td>
+                        <td>@Result.Translation.Original</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Correct answer</b>
+                        </td>
+                        <td>@Result.Translation.Translated</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>Your answer</b>
+                        </td>
+                        <td>@Result.SubmittedAnswer</td>
+                    </tr>
+                </table>
+            </td>
+        }
+    </tr>
+</table>
+
+@code {
+
+    [Parameter]
+    public BingoLingo.Shared.TranslationResult? Result { get; set; }
+
+}
