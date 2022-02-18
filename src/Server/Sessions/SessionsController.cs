@@ -41,7 +41,11 @@ public class SessionsController : Controller
             return NotFound();
         }
 
-        var success = answerRequest.Translation.Translated == answerRequest.Answer;
+        var success = string.Compare(
+	        answerRequest.Translation.Translated.Trim(),
+	        answerRequest.Answer.Trim(),
+	        StringComparison.InvariantCultureIgnoreCase
+        ) == 0;
         session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success, DateTimeOffset.UtcNow));
 
         await StoreSession(id, session);
