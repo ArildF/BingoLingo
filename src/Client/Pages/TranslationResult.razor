@@ -1,4 +1,4 @@
-﻿<table>
+﻿<table style="margin-bottom: 10px">
     <tr>
         @if (Result != null)
         {
@@ -23,17 +23,20 @@
                         <td>@Result.Translation.Original</td>
                     </tr>
                     <tr>
-                        <td>
+                        <td style="padding-right: 10px">
                             <b>Correct answer</b>
                         </td>
                         <td>@Result.Translation.Translated</td>
                     </tr>
-                    <tr>
-                        <td>
-                            <b>Your answer</b>
-                        </td>
-                        <td>@Result.SubmittedAnswer</td>
-                    </tr>
+                    @if (!Result.Success)
+                    {
+	                    <tr>
+		                    <td>
+			                    <b>Your answer</b>
+		                    </td>
+		                    <td>@Result.SubmittedAnswer</td>
+	                    </tr>
+                    }
                 </table>
             </td>
         }
