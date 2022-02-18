@@ -8,9 +8,20 @@
 }
 else
 {
+	<table>
+		<tr>
+			<td style="padding-right: 10px"><b>Started</b></td>
+            <td>@_session.Started.ToLocalTime().ToString("f")</td>
+		</tr>
+		<tr>
+			<td><b>Ended</b></td>
+            <td>@_session.Ended?.ToLocalTime().ToString("f")</td>
+		</tr>
+	</table>
+
     @foreach (var result in _session!.Results)
     {
-        <TranslationResult Result="result"></TranslationResult>
+	    <TranslationResult Result="result"/>
     }
 
     <NavLink class="nav-link" href="/">Back to start</NavLink>

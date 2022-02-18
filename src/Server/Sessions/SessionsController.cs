@@ -63,7 +63,7 @@ public class SessionsController : Controller
             return NotFound();
         }
         
-        session.Ended = DateTimeOffset.Now;
+        session.Ended = DateTimeOffset.UtcNow;
 
         await StoreSession(id, session);
 
