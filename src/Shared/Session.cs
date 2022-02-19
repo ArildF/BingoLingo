@@ -7,6 +7,8 @@ public class Session
     [BsonId]
     public string? Id { get; set; }
 
+    public string? UserId { get; set; }
+
     public List<TranslationResult> Results { get; set; } = new();
 
     public DateTimeOffset Started { get; set; }

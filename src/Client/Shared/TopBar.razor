@@ -1,0 +1,27 @@
+﻿@inject IUserState _userState;
+
+<div class="topBar">
+    <label for="">Remember me</label>
+    <input type="checkbox" @onchange="@RememberMeChanged" checked="@_rememberMe"/>
+</div>
+
+@code {
+
+    private bool _rememberMe;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _rememberMe = await _userState.ShouldRememberUser();
+    }
+
+    private async Task RememberMeChanged(ChangeEventArgs obj)
+    {
+        bool remember = (bool)obj.Value;
+        if (remember)
+        {
+            await _userState.RememberUser();
+        }
+        _rememberMe = remember;
+    }
+
+}

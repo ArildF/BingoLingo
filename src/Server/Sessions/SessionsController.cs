@@ -16,12 +16,13 @@ public class SessionsController : Controller
         _mongoDatabase = mongoDatabase;
     }
 
-    [HttpPut]
-    public async Task<IActionResult> NewSession()
+    [HttpPut("{userId}")]
+    public async Task<IActionResult> NewSession(string userId)
     {
         var session = new Session
         {
             Id = Guid.NewGuid().ToString(),
+            UserId = userId,
             Started = DateTimeOffset.UtcNow,
         };
         await _mongoDatabase.Collection<Session>().InsertOneAsync(session);

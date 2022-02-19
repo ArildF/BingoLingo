@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject ILogger<RunSession> _logger;
 @inject NavigationManager _navigation;
+@inject IUserState _userState;
 
 <PageTitle>Translate!</PageTitle>
 
@@ -59,7 +60,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var response = await Http.PutAsync("/Sessions/", null);
+        string userId = await _userState.GetOrCreateUserId();
+        var response = await Http.PutAsync($"/Sessions/{userId}", null);
         await response.ThrowIfError(_logger);
         _session = await response.Content.ReadFromJsonAsync<StartedSession>();
 
