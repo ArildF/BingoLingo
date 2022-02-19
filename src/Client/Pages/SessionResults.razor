@@ -8,29 +8,42 @@
 }
 else
 {
-	<table>
-		<tr>
-			<td style="padding-right: 10px"><b>Started</b></td>
+    <table>
+        <tr>
+            <td>
+                <b>Started</b>
+            </td>
             <td>@_session.Started.ToLocalTime().ToString("f")</td>
-		</tr>
-		<tr>
-			<td><b>Ended</b></td>
+        </tr>
+        <tr>
+            <td>
+                <b>Ended</b>
+            </td>
             <td>@_session.Ended?.ToLocalTime().ToString("f")</td>
-		</tr>
-	</table>
+        </tr>
+        <tr>
+            <td style="padding-right: 10px">
+                <b>Duration</b>
+            </td>
+            <td>@Duration</td>
+        </tr>
+    </table>
 
     @foreach (var result in _session!.Results)
     {
-	    <TranslationResult Result="result"/>
+        <TranslationResult Result="result"/>
     }
 
     <NavLink class="nav-link" href="/">Back to start</NavLink>
 }
 
 @code {
-    [Parameter] public string? SessionId { get; set; }
+
+    [Parameter]
+    public string? SessionId { get; set; }
 
     private Session? _session;
+    private TimeSpan? Duration => _session?.Ended - _session?.Started;
 
     protected override async Task OnInitializedAsync()
     {
