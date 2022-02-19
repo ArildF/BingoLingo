@@ -17,7 +17,7 @@
             <td>
                 <table>
                     <tr>
-                        <td>
+                        <td  style="padding-right: 10px">
                             <b>Original</b>
                         </td>
                         <td>@Result.Translation.Original</td>
@@ -30,12 +30,12 @@
                     </tr>
                     @if (!Result.Success)
                     {
-	                    <tr>
-		                    <td>
-			                    <b>Your answer</b>
-		                    </td>
-		                    <td>@Result.SubmittedAnswer</td>
-	                    </tr>
+                        <tr>
+                            <td>
+                                <b style="padding-right: 10px">Your answer</b>
+                            </td>
+                            <td>@Result.SubmittedAnswer</td>
+                        </tr>
                     }
                 </table>
             </td>
