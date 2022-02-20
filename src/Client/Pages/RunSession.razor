@@ -109,6 +109,11 @@ else
 
     private async Task Submit()
     {
+        if (_questionSubmitted)
+        {
+            return;
+        }
+
         var submitted = _submittedTranslation?.Trim();
         var request = new SubmittedAnswerRequest(submitted, _translation);
         var msg = await Http.PostAsync($"/Sessions/{_session?.Id}", JsonContent.Create(request));
