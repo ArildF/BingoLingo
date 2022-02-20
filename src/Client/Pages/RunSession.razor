@@ -1,4 +1,4 @@
-﻿@page "/RunSession"
+@page "/RunSession/{NumQuestions:int}"
 @using BingoLingo.Shared
 @inject HttpClient Http
 @inject ILogger<RunSession> _logger;
@@ -57,11 +57,14 @@ else
     private ElementReference? _continueButton;
 
     private InputText? _inputText;
+    
+    [Parameter]
+    public int NumQuestions { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         string userId = await _userState.GetOrCreateUserId();
-        var response = await Http.PutAsync($"/Sessions/{userId}", null);
+        var response = await Http.PutAsync($"/Sessions/{userId}?numQuestions={NumQuestions}", null);
         await response.ThrowIfError(_logger);
         _session = await response.Content.ReadFromJsonAsync<StartedSession>();
 

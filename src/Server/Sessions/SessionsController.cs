@@ -17,7 +17,7 @@ public class SessionsController : Controller
     }
 
     [HttpPut("{userId}")]
-    public async Task<IActionResult> NewSession(string userId)
+    public async Task<IActionResult> NewSession(string userId, [FromQuery]int numQuestions=5)
     {
         var session = new Session
         {
@@ -28,7 +28,7 @@ public class SessionsController : Controller
         await _mongoDatabase.Collection<Session>().InsertOneAsync(session);
 
         var collection = _mongoDatabase.GetCollection<Translation>("Translation");
-        var translations = await collection.AsQueryable().Sample(100).ToListAsync();
+        var translations = await collection.AsQueryable().Sample(numQuestions).ToListAsync();
         return Ok(new StartedSession(session.Id, translations.ToArray()));
     }
 
@@ -41,6 +41,7 @@ public class SessionsController : Controller
         {
             return NotFound();
         }
+
 
         var success = string.Compare(
 	        answerRequest.Translation.Translated.Trim(),

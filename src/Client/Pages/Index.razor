@@ -1,11 +1,29 @@
-﻿@page "/"
+@page "/"
 
 <PageTitle>Bingo Lingo</PageTitle>
 
 <div class="text-center text-dark align-content-center">
     <h1>Ready to start?</h1>
+    
+    <label>Number of questions</label>
+    <input @bind="_numQuestions" @ref="_numQuestionsInput"/>
 
     <div class="nav-item px-3">
-        <NavLink Match="NavLinkMatch.All" href="RunSession" class="nav-link">Start a session</NavLink>
+        <NavLink Match="NavLinkMatch.All" href="@Url" class="nav-link">Start a session</NavLink>
     </div>
 </div>
+@code
+{
+    private int _numQuestions = 5;
+
+    public string Url => $"RunSession/{_numQuestions}";
+
+    private ElementReference _numQuestionsInput;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _numQuestionsInput.FocusAsync();
+    }
+
+}
