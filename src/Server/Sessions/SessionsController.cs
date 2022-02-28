@@ -16,6 +16,16 @@ public class SessionsController : Controller
         _mongoDatabase = mongoDatabase;
     }
 
+    [HttpGet("{userId}/User")]
+    public async Task<IActionResult> SessionsForUser(string userId)
+    {
+        var sessions = await _mongoDatabase.Collection<Session>()
+            .AsQueryable().Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.Started)
+            .ToListAsync();
+        return Ok(sessions);
+    }
+
     [HttpPut("{userId}")]
     public async Task<IActionResult> NewSession(string userId, [FromQuery]int numQuestions=5)
     {

@@ -1,0 +1,86 @@
+﻿@page "/SessionList"
+@using BingoLingo.Shared
+@inject HttpClient _httpClient;
+@inject IUserState _userState;
+
+<PageTitle>Sessions</PageTitle>
+
+@*<style>
+	th {
+        padding-right: 30px;
+    }
+	td {
+        padding-right: 30px;
+    }
+</style>
+*@
+<table class="table table-bordered table-striped">
+   
+    @if (_sessions != null)
+    {
+        <thead>
+            <tr>
+                <th/>
+                <th>Started</th>
+                <th>Ended</th>
+                <th>Duration</th>
+                <th>Results</th>
+            </tr>
+        </thead>
+		<tbody>
+            @foreach (var session in _sessions)
+            {
+
+                <tr>
+                    <NavLink href="@Url(session)" class="nav-link">
+                        <td style="font-size: 15pt">
+                                @if (session.Ended != null)
+                                {
+                                    <div>&#x2705;</div>
+                                }
+                                else
+                                {
+                                    <div>&#x274C;</div>
+                                }
+                        </td>
+                    </NavLink>
+                    <td>
+                        @session.Started.ToLocalTime().ToString(DateLayout)
+                    </td>
+                    <td>@session.Ended?.ToLocalTime().ToString(DateLayout)</td>
+                    <td>
+                        @if (@session.Ended != null)
+                        {
+                            @Duration(session).ToString(@"hh\:mm\:ss")
+                        }
+                    </td>
+                    <td>
+                        <div>@ResultsString(session)</div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    }
+</table>
+@code
+{
+    private Session[]? _sessions;
+    private const string DateLayout = "dd.MM.yyyy HH:mm:ss";
+
+    protected override async Task OnInitializedAsync()
+    {
+        string userId = await _userState.GetOrCreateUserId();
+        var result = await _httpClient.GetAsync($"Sessions/{userId}/User");
+        var str = await result.Content.ReadAsStringAsync();
+        await result.ThrowIfError();
+
+        _sessions = await result.Content.ReadFromJsonAsync<Session[]>();
+    }
+
+
+    private TimeSpan Duration(Session session) => session.Ended - session.Started ?? TimeSpan.Zero;
+
+    private string Url(Session session) => $"/SessionResults/{session.Id}";
+
+    private MarkupString ResultsString(Session session) => (MarkupString)string.Join("", session.Results.Select(r => r.Success ? "&#x2705;" : "&#x274C;"));
+}
