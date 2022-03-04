@@ -1,0 +1,47 @@
+@page "/Login"
+@using Microsoft.AspNetCore.Components
+@using BingoLingo.Shared
+@inject HttpClient _http
+@inject NavigationManager _navigation;
+<h3>Login</h3>
+<EditForm Model="_login" OnValidSubmit="ValidSubmitted">
+    <div class="form-group text-center">
+        <div>
+            <label>Username</label>
+            <InputText @bind-Value="@_login.UserName"/>
+        </div>
+        <div>
+            <label>Password</label>
+            <InputText type="password" @bind-Value="@_login.Password"/>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Save"/>
+    </div>
+</EditForm>
+@if (_loginFailed == true)
+{
+    <div class="text-center" style="color: red">
+        <p>Login failed</p>
+    </div>
+}
+
+@code {
+    private readonly LoginData _login = new();
+    private bool? _loginFailed;
+
+    private async Task ValidSubmitted()
+    {
+        var response = await _http.PostAsJsonAsync("/Authorization/Login", _login);
+        await response.ThrowIfError();
+
+        var loginResult = await response.Content.ReadFromJsonAsync<LoginResult>();
+        if (loginResult?.Succeeded ?? false)
+        {
+            _navigation.NavigateTo("/");
+        }
+        else
+        {
+            _loginFailed = true;
+        }
+    }
+
+}

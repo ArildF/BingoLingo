@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using AspNetCore.Identity.Mongo;
+using AspNetCore.Identity.Mongo.Model;
+using BingoLingo.Server.Auth;
 using Microsoft.AspNetCore.ResponseCompression;
 using MongoDB.Driver;
 
@@ -16,6 +19,21 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
     var client = new MongoClient(url);
     return client.GetDatabase(url.DatabaseName);
 });
+
+builder.Services.AddIdentityMongoDbProvider<ApplicationUser>(
+    io =>
+    {
+        io.Password.RequireDigit = false;
+        io.Password.RequireLowercase = false;
+        io.Password.RequireUppercase = false;
+        io.Password.RequiredLength = 6;
+        io.Password.RequireNonAlphanumeric = false;
+    },
+    mio =>
+    {
+        mio.ConnectionString = builder.Configuration["Mongo:ConnectionString"];
+        
+    });
 
 var app = builder.Build();
 
