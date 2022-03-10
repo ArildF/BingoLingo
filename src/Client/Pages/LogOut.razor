@@ -1,0 +1,17 @@
+@page "/LogOut"
+@using Microsoft.AspNetCore.Components
+@using BingoLingo.Shared
+@using BingoLingo.Client.Authentication
+@inject HttpClient _http
+@inject NavigationManager _navigation;
+@inject AuthorizationService _authorizationService;
+<h4>Logging out</h4>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await _authorizationService.Logout();
+        _navigation.NavigateTo("/");
+    }
+
+}

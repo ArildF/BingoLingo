@@ -1,4 +1,5 @@
 using BingoLingo.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -7,6 +8,7 @@ namespace BingoLingo.Server.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+
 public class TranslationsController : Controller
 {
     private readonly IMongoDatabase _database;
@@ -26,6 +28,7 @@ public class TranslationsController : Controller
         return translation != null ? Ok(translation) : NotFound();
     }
 
+    [Authorize]
     [HttpPut]
     public async Task<IActionResult> Put(Translation translation)
     {

@@ -1,8 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using AspNetCore.Identity.Mongo;
 using AspNetCore.Identity.Mongo.Model;
 using BingoLingo.Server.Auth;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +38,26 @@ builder.Services.AddIdentityMongoDbProvider<ApplicationUser>(
         
     });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+        {
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["JwtIssuer"],
+                ValidAudience = builder.Configuration["JwtAudience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                    builder.Configuration["JwtSecurityKey"]
+                ))
+            };
+        }
+    );
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -47,6 +70,7 @@ else
     app.UseExceptionHandler("/Error");
 }
 
+
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
@@ -56,5 +80,7 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

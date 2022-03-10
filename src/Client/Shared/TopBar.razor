@@ -1,6 +1,19 @@
-﻿@inject IUserState _userState;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
+@inject IUserState _userState;
 
 <div class="topBar">
+    <AuthorizeView>
+        <Authorized>
+            <label>Logged in as @context.User?.Identity?.Name</label>
+            <NavLink href="LogOut">Log out</NavLink>
+            <p/>
+        </Authorized>
+        <NotAuthorized>
+            <NavLink href="Login">Log in</NavLink>
+        </NotAuthorized>
+    </AuthorizeView>
     <label for="">Remember me</label>
     <input type="checkbox" @onchange="@RememberMeChanged" checked="@_rememberMe"/>
 </div>

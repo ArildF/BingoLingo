@@ -1,8 +1,10 @@
 @page "/Login"
 @using Microsoft.AspNetCore.Components
 @using BingoLingo.Shared
+@using BingoLingo.Client.Authentication
 @inject HttpClient _http
 @inject NavigationManager _navigation;
+@inject AuthorizationService _authorizationService;
 <h3>Login</h3>
 <EditForm Model="_login" OnValidSubmit="ValidSubmitted">
     <div class="form-group text-center">
@@ -36,6 +38,7 @@
         var loginResult = await response.Content.ReadFromJsonAsync<LoginResult>();
         if (loginResult?.Succeeded ?? false)
         {
+            await _authorizationService.Login(loginResult);
             _navigation.NavigateTo("/");
         }
         else
