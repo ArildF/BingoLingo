@@ -1,14 +1,17 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 using AspNetCore.Identity.Mongo;
-using AspNetCore.Identity.Mongo.Model;
+using BingoLingo.Server;
 using BingoLingo.Server.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.secret.json", true);
+
+
+builder.Services.Configure<InitialUserConfig>(builder.Configuration.GetSection("initialUser"));
 
 // Add services to the container.
 
@@ -56,6 +59,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         }
     );
 
+builder.Services.AddScoped<InitialUserCreator>();
+
 
 
 var app = builder.Build();
@@ -82,5 +87,7 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 app.UseAuthentication();
 app.UseAuthorization();
+
+await app.EnsureInitialUser();
 
 app.Run();
