@@ -54,13 +54,13 @@ jobs:
         run: dotnet build src/Server --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish src/Server -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/Server -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/publish' 
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/publish' 
 
   deploy:
     runs-on: ubuntu-latest
@@ -81,4 +81,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/publish'
