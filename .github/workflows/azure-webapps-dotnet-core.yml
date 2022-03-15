@@ -49,6 +49,8 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
+      - name: Copy secret appsettings
+        run: echo ${{secrets.SECRET_APPSETTINGS_JSON}} > '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/appsettings.secret.json'
 
       - name: Build with dotnet
         run: dotnet build src/Server --configuration Release
