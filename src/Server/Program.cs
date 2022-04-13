@@ -2,6 +2,7 @@ using System.Text;
 using AspNetCore.Identity.Mongo;
 using BingoLingo.Server;
 using BingoLingo.Server.Auth;
+using BingoLingo.Server.Sessions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -28,6 +29,9 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
     var client = new MongoClient(url);
     return client.GetDatabase(url.DatabaseName ?? "default");
 });
+
+
+builder.Services.AddSingleton<AnswerComparer>();
 
 builder.Services.AddIdentityMongoDbProvider<ApplicationUser>(
     io =>

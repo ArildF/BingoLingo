@@ -10,10 +10,12 @@ namespace BingoLingo.Server.Sessions;
 public class SessionsController : Controller
 {
     private readonly IMongoDatabase _mongoDatabase;
+    private readonly AnswerComparer _comparer;
 
-    public SessionsController(IMongoDatabase mongoDatabase)
+    public SessionsController(IMongoDatabase mongoDatabase, AnswerComparer comparer)
     {
         _mongoDatabase = mongoDatabase;
+        _comparer = comparer;
     }
 
     [HttpGet("{userId}/User")]
@@ -53,11 +55,9 @@ public class SessionsController : Controller
         }
 
 
-        var success = string.Compare(
+        var success = _comparer.IsAcceptable(
 	        answerRequest.Translation.Translated.Trim(),
-	        answerRequest.Answer.Trim(),
-	        StringComparison.InvariantCultureIgnoreCase
-        ) == 0;
+	        answerRequest.Answer.Trim());
         session.Results!.Add(new TranslationResult(answerRequest.Translation, answerRequest.Answer, success, DateTimeOffset.UtcNow));
 
         await StoreSession(id, session);
