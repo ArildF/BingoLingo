@@ -50,7 +50,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
       - name: Copy secret appsettings
-        run: Out-File -FilePath '$env:AZURE_WEBAPP_PACKAGE_PATH/appsettings.secret.json' -InputObject $env:SecretAppSettings
+        run: Out-File -FilePath $env:AZURE_WEBAPP_PACKAGE_PATH/appsettings.secret.json -InputObject $env:SecretAppSettings
         shell: pwsh
         env: 
           SecretAppSettings: "${{secrets.SECRET_APPSETTINGS_JSON}}"
