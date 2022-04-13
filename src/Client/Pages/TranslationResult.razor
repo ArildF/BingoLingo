@@ -1,4 +1,4 @@
-﻿<table style="margin-bottom: 10px">
+<table style="margin-bottom: 10px">
     <tr>
         @if (Result != null)
         {
@@ -28,7 +28,7 @@
                         </td>
                         <td>@Result.Translation.Translated</td>
                     </tr>
-                    @if (!Result.Success)
+                    @if (!Result.SubmittedAnswer.Equals(Result.Translation.Translated, StringComparison.OrdinalIgnoreCase))
                     {
                         <tr>
                             <td>
