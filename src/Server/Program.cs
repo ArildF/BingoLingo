@@ -10,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("appsettings.secret.json", true);
 
+var str = builder.Configuration["Mongo:ConnectionString"];
+Console.WriteLine($"Mongo connection string: {str}");
+
 
 builder.Services.Configure<InitialUserConfig>(builder.Configuration.GetSection("initialUser"));
 
@@ -23,7 +26,7 @@ builder.Services.AddSingleton<IMongoDatabase>(sp =>
     var config = sp.GetRequiredService<IConfiguration>();
     var url = new MongoUrl(config["Mongo:ConnectionString"]);
     var client = new MongoClient(url);
-    return client.GetDatabase(url.DatabaseName);
+    return client.GetDatabase(url.DatabaseName ?? "default");
 });
 
 builder.Services.AddIdentityMongoDbProvider<ApplicationUser>(
