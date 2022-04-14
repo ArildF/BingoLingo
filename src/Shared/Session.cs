@@ -12,6 +12,7 @@ public class Session
 
     public List<TranslationResult> Results { get; set; } = new();
 
+
     [BsonRepresentation(BsonType.String)]
     public DateTimeOffset Started { get; set; }
 
