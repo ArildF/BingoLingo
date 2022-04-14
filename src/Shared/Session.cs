@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BingoLingo.Shared;
@@ -11,7 +12,9 @@ public class Session
 
     public List<TranslationResult> Results { get; set; } = new();
 
+    [BsonRepresentation(BsonType.Document)]
     public DateTimeOffset Started { get; set; }
 
+    [BsonRepresentation(BsonType.Document)]
     public DateTimeOffset? Ended { get; set; }
 }
