@@ -1,0 +1,28 @@
+@page "/Admin"
+@using BingoLingo.Shared
+@inject HttpClient _http
+
+<PageTitle>Admin</PageTitle>
+
+<button onclick="@Refresh">Refresh database</button>
+
+<div>
+    <textarea cols="120" rows="25">@Result</textarea>
+</div>
+@code
+{
+    private string? Result { get; set; }
+    private async void Refresh()
+    {
+        var res = await _http.PostAsync("/Admin/RefreshDatabase", null);
+        await res.ThrowIfError();
+
+        Result = await res.Content.ReadAsStringAsync();
+        StateHasChanged();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+}
