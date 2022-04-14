@@ -12,9 +12,10 @@ public class Session
 
     public List<TranslationResult> Results { get; set; } = new();
 
-    [BsonRepresentation(BsonType.Document)]
+
+    [BsonRepresentation(BsonType.String)]
     public DateTimeOffset Started { get; set; }
 
-    [BsonRepresentation(BsonType.Document)]
+    [BsonRepresentation(BsonType.String)]
     public DateTimeOffset? Ended { get; set; }
 }
