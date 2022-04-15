@@ -30,9 +30,13 @@ public class AuthorizationController : Controller
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginData loginData)
     {
-        var signInResult = await _signInManager.PasswordSignInAsync(
-                    loginData.UserName,
-                    loginData.Password, true, false);
+        var user = await _userManager.FindByNameAsync(loginData.UserName);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+        var signInResult = await _signInManager.CheckPasswordSignInAsync(
+                    user, loginData.Password, false);
 
         if (!signInResult.Succeeded)
         {
@@ -41,7 +45,7 @@ public class AuthorizationController : Controller
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, loginData.UserName!)
+            new Claim(ClaimTypes.Name, loginData.UserName!),
         };
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSecurityKey"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

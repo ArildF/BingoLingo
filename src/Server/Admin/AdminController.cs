@@ -58,5 +58,11 @@ namespace BingoLingo.Server.Admin
                     },
                 });
         }
+
+        [HttpPost]
+        public Task TestAuthorization()
+        {
+            return Task.FromResult(Ok());
+        }
     }
 }

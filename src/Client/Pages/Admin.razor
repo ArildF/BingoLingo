@@ -9,16 +9,28 @@
 <div>
     <textarea cols="120" rows="25">@Result</textarea>
 </div>
+
+<div>
+    <button onclick="@TestAuthorization">Test authorization</button>
+    <label>@AuthorizeResult</label>
+</div>
 @code
 {
     private string? Result { get; set; }
-    private async void Refresh()
+    private string? AuthorizeResult { get; set; }
+
+    private async Task Refresh()
     {
         var res = await _http.PostAsync("/Admin/RefreshDatabase", null);
         await res.ThrowIfError();
 
         Result = await res.Content.ReadAsStringAsync();
-        StateHasChanged();
+    }
+
+    private async Task TestAuthorization()
+    {
+        var res = await _http.PostAsync("/Admin/TestAuthorization", content:null);
+        AuthorizeResult = res.StatusCode.ToString();
     }
 
     protected override Task OnInitializedAsync()
