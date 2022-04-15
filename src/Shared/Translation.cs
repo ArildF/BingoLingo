@@ -8,6 +8,7 @@ public class Translation
     public string Original { get; set; }
     public string Translated { get; set; }
 
+
     [BsonRepresentation(BsonType.String)]
     public DateTimeOffset Created { get; set; } = DateTimeOffset.UtcNow;
 
