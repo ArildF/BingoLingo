@@ -3,6 +3,7 @@ using AspNetCore.Identity.Mongo;
 using BingoLingo.Server;
 using BingoLingo.Server.Auth;
 using BingoLingo.Server.Sessions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -45,10 +46,14 @@ builder.Services.AddIdentityMongoDbProvider<ApplicationUser>(
     mio =>
     {
         mio.ConnectionString = builder.Configuration["Mongo:ConnectionString"];
-        
+
     });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(ao =>
+    {
+        ao.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        ao.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(o =>
         {
             o.TokenValidationParameters = new TokenValidationParameters
@@ -65,6 +70,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             };
         }
     );
+AuthenticationOptions o;
 
 builder.Services.AddScoped<InitialUserCreator>();
 
