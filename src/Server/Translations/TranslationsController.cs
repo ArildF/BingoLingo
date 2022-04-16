@@ -40,4 +40,19 @@ public class TranslationsController : Controller
 
         return Ok();
     }
+
+    [Authorize]
+    [HttpPost("Search")]
+    public async Task<IActionResult> Search(TranslationSearchRequest request)
+    {
+        int count = await _database.Collection<Translation>().AsQueryable().CountAsync();
+        var translations = await _database.Collection<Translation>().AsQueryable()
+            .OrderByDescending(t => t.Created)
+            .Skip(request.Skip)
+            .Take(request.Top)
+            .ToListAsync();
+
+        return Ok(new TranslationSearchResponse(count, translations));
+
+    }
 }

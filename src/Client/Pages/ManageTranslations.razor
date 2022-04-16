@@ -8,9 +8,50 @@
     <div>
         <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
     </div>
+    
+<RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData" 
+                IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
+                TItem="Translation" @ref="_grid">
+    <Columns>
+        <RadzenDataGridColumn TItem="Translation" Property="Original" Title="Originale"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Translated" Title="Translated"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Created" Title="Created" Width="10%" FormatString="@DateLayout"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Modified" Title="Modified" Width="10%" FormatString="@DateLayout"/>
+    </Columns>
+
+</RadzenDataGrid>
 
 @code
 {
+    private const string DateLayout = "{0:dd.MM.yyyy HH:mm:ss}";
+
+    private List<Translation> _translations;
+
+    private int _count;
+    private bool _isLoading;
+    private RadzenDataGrid<Translation> _grid;
+
+
+
+    private async Task LoadData(LoadDataArgs args)
+    {
+        _isLoading = true;
+        try
+        {
+            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0);
+            var httpResponse = await _http.PostAsJsonAsync("/Translations/Search", request);
+            await httpResponse.ThrowIfError(_logger);
+
+            var response = await httpResponse.Content.ReadFromJsonAsync<TranslationSearchResponse>();
+
+            _translations = response.Translations;
+            _count = response.TotalCount;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
 
     private async Task NewTranslation()
     {
@@ -24,7 +65,16 @@
             var res = await _http.PutAsJsonAsync("/translations", translation);
             await res.ThrowIfError(_logger);
 
+            await _grid.Reload();
+
+
             translation = CreateTranslation();
         }
     }
+
+    private void EnsureTranslations()
+    {
+        _translations ??= new();
+    }
+
 }
