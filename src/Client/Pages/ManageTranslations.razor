@@ -11,19 +11,20 @@
     
 <RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData"
                 IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
+                AllowSorting="true"
                 TItem="Translation" @ref="_grid">
     <Columns>
         <RadzenDataGridColumn TItem="Translation" Property="Original" Title="Originale"/>
         <RadzenDataGridColumn TItem="Translation" Property="Translated" Title="Translated"/>
         <RadzenDataGridColumn TItem="Translation" Property="Created" Title="Created" Width="10%" FormatString="@DateLayout"/>
         <RadzenDataGridColumn TItem="Translation" Property="Modified" Title="Modified" Width="10%" FormatString="@DateLayout"/>
-        <RadzenDataGridColumn TItem="Translation" Width="4%">
+        <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
             <Template Context="translation">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light"
                               Click="@(async() => await Edit(translation))"/>
             </Template>
         </RadzenDataGridColumn> 
-        <RadzenDataGridColumn TItem="Translation" Width="4%">
+        <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
             <Template Context="translation">
                 <RadzenButton Icon="delete_outline" ButtonStyle="ButtonStyle.Warning"
                               Click="@(async() => await Delete(translation))"/>
@@ -37,11 +38,11 @@
 {
     private const string DateLayout = "{0:dd.MM.yyyy HH:mm:ss}";
 
-    private List<Translation> _translations;
+    private List<Translation>? _translations;
 
     private int _count;
     private bool _isLoading;
-    private RadzenDataGrid<Translation> _grid;
+    private RadzenDataGrid<Translation>? _grid;
 
 
 
@@ -50,7 +51,8 @@
         _isLoading = true;
         try
         {
-            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0);
+            var sortPredicates = args.Sorts.Select(s => s.ToSortPredicate()).ToArray();
+            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0, sortPredicates);
             var httpResponse = await _http.PostAsJsonAsync("/Translations/Search", request);
             await httpResponse.ThrowIfError(_logger);
 

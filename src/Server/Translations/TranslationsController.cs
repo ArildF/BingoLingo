@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using BingoLingo.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -66,8 +67,30 @@ public class TranslationsController : Controller
     public async Task<IActionResult> Search(TranslationSearchRequest request)
     {
         int count = await _database.Collection<Translation>().AsQueryable().CountAsync();
-        var translations = await _database.Collection<Translation>().AsQueryable()
-            .OrderByDescending(t => t.Created)
+        var queryable = _database.Collection<Translation>().AsQueryable();
+        foreach (var sort in request.Sorts.EmptyIfNull())
+        {
+            queryable = sort switch
+            {
+                { Property: "Created", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Created),
+                { Property: "Created", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
+                    t.Created),
+                { Property: "Modified", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Modified),
+                { Property: "Modified", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
+                    t.Modified),
+                { Property: "Original", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Original),
+                { Property: "Original", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
+                    t.Original),
+                { Property: "Translated", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t =>
+                    t.Translated),
+                { Property: "Translated", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
+                    t.Translated),
+                _ => queryable
+            };
+
+        }
+
+        var translations = await queryable
             .Skip(request.Skip)
             .Take(request.Top)
             .ToListAsync();
