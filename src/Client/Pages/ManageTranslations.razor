@@ -20,7 +20,13 @@
         <RadzenDataGridColumn TItem="Translation" Width="4%">
             <Template Context="translation">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light"
-                    Click="@(async() =>await Edit(translation))">&#x270E;</RadzenButton>
+                              Click="@(async() => await Edit(translation))"/>
+            </Template>
+        </RadzenDataGridColumn> 
+        <RadzenDataGridColumn TItem="Translation" Width="4%">
+            <Template Context="translation">
+                <RadzenButton Icon="delete_outline" ButtonStyle="ButtonStyle.Warning"
+                              Click="@(async() => await Delete(translation))"/>
             </Template>
         </RadzenDataGridColumn> 
     </Columns>
@@ -95,4 +101,24 @@
         _translations ??= new();
     }
 
+    private async Task Delete(Translation translation)
+    {
+        if (await _dialogService.OpenAsync("Delete translation", ds => 
+            @<div>
+                <p>Really?</p>
+                <div class="row">
+                    <div class="col">
+                        <RadzenButton Text="Yes" Click="() => ds.Close(true)" Class="mr-1" Style="width: 80px;" />
+                        <RadzenButton Text="No" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+                    </div>
+                </div>
+            </div>) == true)
+        {
+            var res = await _http.DeleteAsync($"/translations/{translation.Id}");
+            await res.ThrowIfError(_logger);
+
+            await _grid.Reload();
+            
+        }
+    }
 }

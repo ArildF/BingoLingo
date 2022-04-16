@@ -52,6 +52,16 @@ public class TranslationsController : Controller
     }
 
     [Authorize]
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var coll = _database.Collection<Translation>();
+        await coll.DeleteOneAsync(t => t.Id == id);
+
+        return Ok();
+    }
+
+    [Authorize]
     [HttpPost("Search")]
     public async Task<IActionResult> Search(TranslationSearchRequest request)
     {
