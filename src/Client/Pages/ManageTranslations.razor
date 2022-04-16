@@ -9,7 +9,7 @@
         <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
     </div>
     
-<RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData" 
+<RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData"
                 IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
                 TItem="Translation" @ref="_grid">
     <Columns>
@@ -17,6 +17,12 @@
         <RadzenDataGridColumn TItem="Translation" Property="Translated" Title="Translated"/>
         <RadzenDataGridColumn TItem="Translation" Property="Created" Title="Created" Width="10%" FormatString="@DateLayout"/>
         <RadzenDataGridColumn TItem="Translation" Property="Modified" Title="Modified" Width="10%" FormatString="@DateLayout"/>
+        <RadzenDataGridColumn TItem="Translation" Width="4%">
+            <Template Context="translation">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light"
+                    Click="@(async() =>await Edit(translation))">&#x270E;</RadzenButton>
+            </Template>
+        </RadzenDataGridColumn> 
     </Columns>
 
 </RadzenDataGrid>
@@ -69,6 +75,18 @@
 
 
             translation = CreateTranslation();
+        }
+    }
+
+    private async Task Edit(Translation translation)
+    {
+        if (await _dialogService.OpenAsync<EditTranslation>("Edit translation",
+            new Dictionary<string, object> { { "Translation", translation } }) == true)
+        {
+            var res = await _http.PostAsJsonAsync("/translations", translation);
+            await res.ThrowIfError(_logger);
+
+            await _grid.Reload();
         }
     }
 

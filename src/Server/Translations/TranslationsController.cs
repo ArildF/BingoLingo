@@ -42,6 +42,16 @@ public class TranslationsController : Controller
     }
 
     [Authorize]
+    [HttpPost]
+    public async Task<IActionResult> Post(Translation translation)
+    {
+        var coll = _database.GetCollection<Translation>("Translation");
+        await coll.ReplaceOneAsync(t => t.Id == translation.Id, translation);
+
+        return Ok();
+    }
+
+    [Authorize]
     [HttpPost("Search")]
     public async Task<IActionResult> Search(TranslationSearchRequest request)
     {
