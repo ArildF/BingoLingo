@@ -1,0 +1,44 @@
+@page "/EditTranslation"
+@using BingoLingo.Shared
+@inject HttpClient _http
+@inject ILogger<EditTranslation> _logger;
+@inject DialogService _dialogService;
+
+<PageTitle>Edit translation</PageTitle>
+@if (Translation == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="Translation" OnSubmit="ValidSubmitted">
+        <div class="container">
+            <div class="row">
+                    <label class="col-3" for="Original">Original</label>
+                    <InputText class="col" @bind-Value="Translation.Original" id="Original"/>
+            </div>
+            <div class="row">
+                <label class="col-3" for="Translated">Translated</label>
+                <InputText class="col" @bind-Value="Translation.Translated" id="Translated"/>
+            </div>
+        </div>
+
+        <div style="margin: 10px" align="right">
+            <RadzenButton ButtonType="ButtonType.Submit">Save</RadzenButton>
+            <RadzenButton Click="() => _dialogService.Close(false)">Cancel</RadzenButton>
+        </div>
+    </EditForm>
+}
+
+@code
+{
+    [Parameter]
+    public Translation? Translation { get; set; }
+
+
+    private async Task ValidSubmitted()
+    {
+
+        _dialogService.Close(true);
+    }
+}

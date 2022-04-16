@@ -1,0 +1,30 @@
+@page "/ManageTranslations"
+@using BingoLingo.Shared
+@inject HttpClient _http
+@inject ILogger<ManageTranslations> _logger;
+@inject DialogService _dialogService;
+
+<PageTitle>Manage translations</PageTitle>
+    <div>
+        <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
+    </div>
+
+@code
+{
+
+    private async Task NewTranslation()
+    {
+        Translation CreateTranslation() => new("", "", Guid.NewGuid().ToString());
+        
+
+        var translation = CreateTranslation();
+        while (await _dialogService.OpenAsync<EditTranslation>("New translation",
+            new Dictionary<string, object> {{ "Translation", translation }} ) == true)
+        {
+            var res = await _http.PutAsJsonAsync("/translations", translation);
+            await res.ThrowIfError(_logger);
+
+            translation = CreateTranslation();
+        }
+    }
+}
