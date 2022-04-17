@@ -1,0 +1,185 @@
+@page "/ManageTranslations"
+@using BingoLingo.Shared
+@using System.Reactive.Subjects
+@using System.Reactive
+@using System.Reactive.Linq
+@inject HttpClient _http
+@inject ILogger<ManageTranslations> _logger;
+@inject DialogService _dialogService;
+
+<style>
+    .rz-cell-data {
+        font-size: 1rem !important
+    }
+    .rz-column-title {
+        font-size: 1.3rem !important
+    }
+</style>
+
+<PageTitle>Manage translations</PageTitle>
+    <div>
+        <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
+    </div>
+    
+<div>
+    <RadzenTextBox @oninput="@(args => SearchText = args.Value?.ToString())" @ref="@_searchTextBox" Placeholder="Search..."/>
+    <RadzenButton Icon="clear" Click="async () => await ClearSearch()"></RadzenButton>
+</div>
+    
+<RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData"
+                IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
+                AllowSorting="true" AllowColumnResize="true"
+                TItem="Translation" @ref="_grid">
+    <Columns>
+        <RadzenDataGridColumn TItem="Translation" Property="Original" Title="Original">
+            <FooterTemplate>
+                Translations: <b>@_grid?.View.Count()</b> of <b>@_count</b>
+            </FooterTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Translation" Property="Translated" Title="Translated"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Created" Title="Created" Width="10%" FormatString="@DateLayout"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Modified" Title="Modified" Width="10%" FormatString="@DateLayout"/>
+        <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
+            <Template Context="translation">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light"
+                              Click="@(async () => await Edit(translation))"/>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
+            <Template Context="translation">
+                <RadzenButton Icon="delete_outline" ButtonStyle="ButtonStyle.Warning"
+                              Click="@(async () => await Delete(translation))"/>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+
+</RadzenDataGrid>
+
+@code
+{
+    private const string DateLayout = "{0:dd.MM.yyyy HH:mm:ss}";
+
+    private List<Translation>? _translations;
+
+    private int _count;
+    private bool _isLoading;
+    private RadzenDataGrid<Translation>? _grid;
+
+    private IDisposable _subscription;
+    private readonly Subject<Unit> _searchSubject = new ();
+    private RadzenTextBox _searchTextBox;
+    private string? _searchText;
+
+
+    private string? SearchText
+    {
+        get => _searchText;
+        set
+        {
+            _searchText = value;
+            _searchSubject.OnNext(Unit.Default);
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _subscription = _searchSubject.Throttle(TimeSpan.FromSeconds(0.75))
+            .Subscribe(async _ => await _grid?.Reload());
+    }
+
+    public void Dispose()
+    {
+        _subscription.Dispose();
+        _searchSubject.Dispose();
+    }
+
+
+    private async Task LoadData(LoadDataArgs args)
+    {
+        _isLoading = true;
+        try
+        {
+            var sortPredicates = args.Sorts.Select(s => s.ToSortPredicate()).ToArray();
+            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0, SearchText, sortPredicates);
+            var httpResponse = await _http.PostAsJsonAsync("/Translations/Search", request);
+            await httpResponse.ThrowIfError(_logger);
+
+            var response = await httpResponse.Content.ReadFromJsonAsync<TranslationSearchResponse>();
+
+            _translations = response.Translations;
+            _count = response.TotalCount;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task NewTranslation()
+    {
+        Translation CreateTranslation() => new("", "", Guid.NewGuid().ToString());
+        
+
+        var translation = CreateTranslation();
+        while (await _dialogService.OpenAsync<EditTranslation>("New translation",
+            new Dictionary<string, object> {{ "Translation", translation }} ) == true)
+        {
+            var res = await _http.PutAsJsonAsync("/translations", translation);
+            await res.ThrowIfError(_logger);
+
+            await _grid.Reload();
+
+
+            translation = CreateTranslation();
+        }
+    }
+
+    private async Task Edit(Translation translation)
+    {
+        if (await _dialogService.OpenAsync<EditTranslation>("Edit translation",
+            new Dictionary<string, object> { { "Translation", translation } }) == true)
+        {
+            var res = await _http.PostAsJsonAsync("/translations", translation);
+            await res.ThrowIfError(_logger);
+
+            await _grid.Reload();
+        }
+    }
+
+    private void EnsureTranslations()
+    {
+        _translations ??= new();
+    }
+
+    private async Task Delete(Translation translation)
+    {
+        if (await _dialogService.OpenAsync("Delete translation", ds => 
+            @<div>
+                <p>Really?</p>
+                <div class="row">
+                    <div class="col">
+                        <RadzenButton Text="Yes" Click="() => ds.Close(true)" Class="mr-1" Style="width: 80px;" />
+                        <RadzenButton Text="No" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Secondary" Class="mr-1" />
+                    </div>
+                </div>
+            </div>) == true)
+        {
+            var res = await _http.DeleteAsync($"/translations/{translation.Id}");
+            await res.ThrowIfError(_logger);
+
+            await _grid.Reload();
+            
+        }
+    }
+
+    private async Task ClearSearch()
+    {
+        _searchTextBox.Value = string.Empty;
+        _searchText = string.Empty;
+        await _grid.Reload();
+    }
+}
+
+
+
