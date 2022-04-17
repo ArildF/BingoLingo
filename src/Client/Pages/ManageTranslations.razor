@@ -1,5 +1,8 @@
 @page "/ManageTranslations"
 @using BingoLingo.Shared
+@using System.Reactive.Subjects
+@using System.Reactive
+@using System.Reactive.Linq
 @inject HttpClient _http
 @inject ILogger<ManageTranslations> _logger;
 @inject DialogService _dialogService;
@@ -8,6 +11,11 @@
     <div>
         <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
     </div>
+    
+<div>
+    <RadzenTextBox @oninput="@(args => SearchText = args.Value?.ToString())" @ref="@_searchTextBox" Placeholder="Search..."/>
+    <RadzenButton Icon="clear" Click="async () => await ClearSearch()"></RadzenButton>
+</div>
     
 <RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData"
                 IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
@@ -44,6 +52,34 @@
     private bool _isLoading;
     private RadzenDataGrid<Translation>? _grid;
 
+    private IDisposable _subscription;
+    private readonly Subject<Unit> _searchSubject = new ();
+    private RadzenTextBox _searchTextBox;
+    private string? _searchText;
+
+
+    private string? SearchText
+    {
+        get => _searchText;
+        set
+        {
+            _searchText = value;
+            _searchSubject.OnNext(Unit.Default);
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _subscription = _searchSubject.Throttle(TimeSpan.FromSeconds(0.75))
+            .Subscribe(async _ => await _grid?.Reload());
+    }
+
+    public void Dispose()
+    {
+        _subscription.Dispose();
+        _searchSubject.Dispose();
+    }
 
 
     private async Task LoadData(LoadDataArgs args)
@@ -52,7 +88,7 @@
         try
         {
             var sortPredicates = args.Sorts.Select(s => s.ToSortPredicate()).ToArray();
-            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0, sortPredicates);
+            var request = new TranslationSearchRequest(args.Top ?? 500, args.Skip ?? 0, SearchText, sortPredicates);
             var httpResponse = await _http.PostAsJsonAsync("/Translations/Search", request);
             await httpResponse.ThrowIfError(_logger);
 
@@ -123,4 +159,14 @@
             
         }
     }
+
+    private async Task ClearSearch()
+    {
+        _searchTextBox.Value = string.Empty;
+        _searchText = string.Empty;
+        await _grid.Reload();
+    }
 }
+
+
+

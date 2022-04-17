@@ -66,8 +66,16 @@ public class TranslationsController : Controller
     [HttpPost("Search")]
     public async Task<IActionResult> Search(TranslationSearchRequest request)
     {
-        int count = await _database.Collection<Translation>().AsQueryable().CountAsync();
         var queryable = _database.Collection<Translation>().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(request.SearchText))
+        {
+            queryable = queryable.Where(q =>
+                q.Original.ToLowerInvariant().Contains(request.SearchText.ToLowerInvariant()) || 
+                q.Translated.ToLowerInvariant().Contains(request.SearchText.ToLowerInvariant()));
+        }
+        int count = await queryable.CountAsync();
+
+
         foreach (var sort in request.Sorts.EmptyIfNull())
         {
             queryable = sort switch
