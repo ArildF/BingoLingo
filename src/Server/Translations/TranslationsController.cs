@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 
-namespace BingoLingo.Server.Controllers;
+namespace BingoLingo.Server.Translations;
 
 [ApiController]
 [Route("[controller]")]
@@ -75,27 +75,39 @@ public class TranslationsController : Controller
         }
         int count = await queryable.CountAsync();
 
-
-        foreach (var sort in request.Sorts.EmptyIfNull())
+        if (!request.Sorts.EmptyIfNull().Any())
         {
-            queryable = sort switch
+            queryable = queryable.OrderByDescending(t => t.Created);
+        }
+        else
+        {
+            foreach (var sort in request.Sorts.EmptyIfNull())
             {
-                { Property: "Created", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Created),
-                { Property: "Created", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
-                    t.Created),
-                { Property: "Modified", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Modified),
-                { Property: "Modified", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
-                    t.Modified),
-                { Property: "Original", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t => t.Original),
-                { Property: "Original", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
-                    t.Original),
-                { Property: "Translated", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t =>
-                    t.Translated),
-                { Property: "Translated", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
-                    t.Translated),
-                _ => queryable
-            };
+                queryable = sort switch
+                {
+                    { Property: "Created", Direction: ListSortDirection.Ascending } =>
+                        queryable.OrderBy(t => t.Created),
+                    { Property: "Created", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(t =>
+                        t.Created),
+                    { Property: "Modified", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t =>
+                        t.Modified),
+                    { Property: "Modified", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(
+                        t =>
+                            t.Modified),
+                    { Property: "Original", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t =>
+                        t.Original),
+                    { Property: "Original", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(
+                        t =>
+                            t.Original),
+                    { Property: "Translated", Direction: ListSortDirection.Ascending } => queryable.OrderBy(t =>
+                        t.Translated),
+                    { Property: "Translated", Direction: ListSortDirection.Descending } => queryable.OrderByDescending(
+                        t =>
+                            t.Translated),
+                    _ => queryable
+                };
 
+            }
         }
 
         var translations = await queryable
