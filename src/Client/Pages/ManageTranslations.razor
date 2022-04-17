@@ -7,6 +7,15 @@
 @inject ILogger<ManageTranslations> _logger;
 @inject DialogService _dialogService;
 
+<style>
+    .rz-cell-data {
+        font-size: 1rem !important
+    }
+    .rz-column-title {
+        font-size: 1.3rem !important
+    }
+</style>
+
 <PageTitle>Manage translations</PageTitle>
     <div>
         <RadzenButton Click="@NewTranslation">Create new</RadzenButton>
@@ -29,15 +38,15 @@
         <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
             <Template Context="translation">
                 <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light"
-                              Click="@(async() => await Edit(translation))"/>
+                              Click="@(async () => await Edit(translation))"/>
             </Template>
-        </RadzenDataGridColumn> 
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Translation" Width="4%" Sortable="false">
             <Template Context="translation">
                 <RadzenButton Icon="delete_outline" ButtonStyle="ButtonStyle.Warning"
-                              Click="@(async() => await Delete(translation))"/>
+                              Click="@(async () => await Delete(translation))"/>
             </Template>
-        </RadzenDataGridColumn> 
+        </RadzenDataGridColumn>
     </Columns>
 
 </RadzenDataGrid>
