@@ -28,10 +28,14 @@
     
 <RadzenDataGrid Data="@_translations" Count="@_count" LoadData="@LoadData"
                 IsLoading="@_isLoading" AllowPaging="true" PageSize="10"
-                AllowSorting="true"
+                AllowSorting="true" AllowColumnResize="true"
                 TItem="Translation" @ref="_grid">
     <Columns>
-        <RadzenDataGridColumn TItem="Translation" Property="Original" Title="Originale"/>
+        <RadzenDataGridColumn TItem="Translation" Property="Original" Title="Original">
+            <FooterTemplate>
+                Translations: <b>@_grid?.View.Count()</b> of <b>@_count</b>
+            </FooterTemplate>
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="Translation" Property="Translated" Title="Translated"/>
         <RadzenDataGridColumn TItem="Translation" Property="Created" Title="Created" Width="10%" FormatString="@DateLayout"/>
         <RadzenDataGridColumn TItem="Translation" Property="Modified" Title="Modified" Width="10%" FormatString="@DateLayout"/>
