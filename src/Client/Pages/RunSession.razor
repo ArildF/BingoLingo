@@ -16,10 +16,10 @@
 else
 {
     <EditForm Model="_translation" OnSubmit="Submit">
-        <div class="form-group text-center">
+        <div class="form-group text-center" style="display: flex; flex-direction: column; align-items: center">
             <h3>Translate the following:</h3>
             <p>"@_translation.Original"</p>
-            <InputText @bind-Value="_submittedTranslation" autofocus="autofocus" class="form-control" @ref="_inputText"/>
+            <InputText @bind-Value="_submittedTranslation" style="max-width: 700px" autofocus="autofocus" class="form-control" @ref="_inputText"/>
             @if (!_questionSubmitted)
             {
                 <button type="submit" class="btn btn-primary">Submit</button>
