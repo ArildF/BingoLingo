@@ -57,7 +57,7 @@ else
     private ElementReference? _continueButton;
 
     private InputText? _inputText;
-    
+
     [Parameter]
     public int NumQuestions { get; set; }
 
@@ -90,7 +90,7 @@ else
         {
             var msg = await Http.PostAsync($"/Sessions/{_session?.Id}/completed", null);
             await msg.ThrowIfError();
-            
+
             _navigation.NavigateTo($"/SessionResults/{_session?.Id}");
         }
     }
@@ -123,6 +123,11 @@ else
 
         _success = response?.Success ?? false;
         _questionSubmitted = true;
+
+        if (!_success)
+        {
+            _translations!.Enqueue(_translation);
+        }
     }
 
 }
